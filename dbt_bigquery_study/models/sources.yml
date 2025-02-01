@@ -1,0 +1,154 @@
+version: 2
+
+sources:
+  - name: ny_taxi # dbt에서 사용할 이름
+    database: de-herzblue-202501 # 구글 클라우드 프로젝트 ID
+    schema: dbt_bigquery_study # 빅쿼리 데이터셋 이름
+    description: "뉴욕 택시 운행 데이터의 파티션된 버전"
+    
+    tables:
+      - name: tlc_green_trips_2022 # 빅쿼리 테이블 이름
+        description: "녹색 택시(Green Taxi)의 운행 기록 데이터. 일자별로 파티션되어 있음"
+        
+        loaded_at_field: pickup_datetime
+
+        columns:
+          - name: vendor_id
+            description: "택시 제공업체 식별자"
+            tests:
+              - not_null
+              - accepted_values:
+                  values: ['1', '2']
+
+          - name: pickup_datetime
+            description: "승객 탑승 시간"
+            tests:
+              - not_null
+
+          - name: dropoff_datetime
+            description: "승객 하차 시간"
+            tests:
+              - not_null
+              - dbt_utils.expression_is_true:
+                  expression: "dropoff_datetime >= pickup_datetime"
+
+          - name: store_and_fwd_flag
+            description: "저장 후 전송 여부 (Y/N)"
+            tests:
+              - accepted_values:
+                  values: ['Y', 'N']
+
+          - name: rate_code
+            description: >
+              요금 코드. 운행 유형에 따른 요금 체계를 나타냅니다:
+              1.0 = 표준 요금 (Standard rate): 일반적인 시내 운행
+              2.0 = JFK 공항 (JFK Airport): 고정 요금이 적용되는 JFK 공항행
+              3.0 = Newark 공항 (Newark Airport): Newark 공항 운행
+              4.0 = Nassau 또는 Westchester: 교외 지역 운행
+              5.0 = 협상 요금 (Negotiated fare): 사전에 합의된 요금
+              6.0 = 그룹 승차 (Group ride): 합승 요금
+            tests:
+              - not_null
+              - accepted_values:
+                  values: [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
+
+          - name: passenger_count
+            description: "승객 수"
+
+          - name: trip_distance
+            description: "주행 거리 (마일)"
+            tests:
+              - not_null
+              - dbt_utils.expression_is_true:
+                  expression: "trip_distance >= 0"
+
+          - name: fare_amount
+            description: "기본 요금"
+            tests:
+              - not_null
+
+          - name: extra
+            description: "추가 요금"
+            tests:
+              - not_null
+
+          - name: mta_tax
+            description: "MTA 세금"
+            tests:
+              - not_null
+
+          - name: tip_amount
+            description: "팁"
+            tests:
+              - not_null
+
+          - name: tolls_amount
+            description: "통행료"
+            tests:
+              - not_null
+
+          - name: ehail_fee
+            description: "전자 호출 수수료"
+
+          - name: airport_fee
+            description: "공항 수수료"
+
+          - name: total_amount
+            description: "총 금액"
+            tests:
+              - not_null
+              - dbt_utils.expression_is_true:
+                  expression: "total_amount >= 0"
+
+          - name: payment_type
+            description: >
+              결제 방식을 나타내는 코드:
+              1.0 = 신용카드 (Credit card): 카드 결제
+              2.0 = 현금 (Cash): 현금 결제
+              3.0 = 무료 운행 (No charge): 요금이 부과되지 않는 운행
+              4.0 = 분쟁 (Dispute): 요금 관련 분쟁이 있는 경우
+              5.0 = 알 수 없음 (Unknown): 결제 방식이 불분명한 경우
+              6.0 = 취소된 운행 (Voided trip): 운행이 취소된 경우
+            tests:
+              - not_null
+              - accepted_values:
+                  values: [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
+
+          - name: trip_type
+            description: "운행 유형"
+            tests:
+              - not_null
+
+          - name: imp_surcharge
+            description: "개선 부과금"
+            tests:
+              - not_null
+
+          - name: pickup_location_id
+            description: "승차 위치 ID"
+            tests:
+              - not_null
+
+          - name: dropoff_location_id
+            description: "하차 위치 ID"
+            tests:
+              - not_null
+
+          - name: data_file_year
+            description: "데이터 파일의 연도"
+            tests:
+              - not_null
+
+          - name: data_file_month
+            description: "데이터 파일의 월"
+            tests:
+              - not_null
+
+        # 테이블 수준의 테스트
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: >
+                fare_amount + COALESCE(extra, 0) + COALESCE(mta_tax, 0) + 
+                COALESCE(tip_amount, 0) + COALESCE(tolls_amount, 0) + 
+                COALESCE(imp_surcharge, 0) <= total_amount
+              severity: warn
