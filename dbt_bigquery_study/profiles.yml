@@ -1,0 +1,14 @@
+dbt_bigquery_study:
+  outputs:
+    dev:
+      dataset: dbt_bigquery_study
+      job_execution_timeout_seconds: 300
+      job_retries: 1
+      keyfile: '/home/herzblue/dbt-bigquery-study/.key/de-herzblue-202501-a5e4920005f9.json'
+      location: US
+      method: service-account
+      priority: interactive
+      project: de-herzblue-202501
+      threads: 4
+      type: bigquery
+  target: dev

@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "dbt-bigquery-study"
+version = "0.1.0"
+description = ""
+authors = ["herzblue <herzblue@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11.9"
+dbt-bigquery = "^1.9.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
