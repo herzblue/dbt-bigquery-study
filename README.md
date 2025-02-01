@@ -90,7 +90,7 @@ dbt run
 07:57:13  
 07:57:13  Done. PASS=2 WARN=0 ERROR=0 SKIP=0 TOTAL=2
 ```
-![[/attached_file/Pasted image 20250201165908.png]]
+![Pasted image 20250201165908](./attached_file/Pasted_image_20250201165908.png)
 
 #### [5] dbt utils 설정
 
@@ -133,8 +133,7 @@ AS
 SELECT *
 FROM bigquery-public-data.new_york_taxi_trips.tlc_green_trips_2022;
 ```
-
-![[Pasted image 20250201171040.png]]
+![Pasted_image_20250201171040.png](./attached_file/Pasted_image_20250201171040.png)
 
 #### [8] 테이블 정보 저장
 
@@ -487,8 +486,8 @@ dbt run --select +mart_location_patterns
 08:36:20  
 08:36:20  Done. PASS=3 WARN=0 ERROR=0 SKIP=0 TOTAL=3
 ```
+![Pasted_image_20250201173750.png](./attached_file/Pasted_image_20250201173750.png)
 
-![[Pasted image 20250201173750.png]]
 #### [5] 모델 컴파일 확인
 
 - 만약 모델 실행 전에, 컴파일을 통해 확인하고 싶다면 아래 명령어로 가능함
